@@ -1,6 +1,4 @@
 @startjson
-'https://plantuml.com/json-diagram
-
 {
   "__MULTI-ROOTS_" : [ {
     "John Doe" : [ {
@@ -14,6 +12,4 @@
     "George Zhou" : [ ]
   } ]
 }
-
-
 @endjson

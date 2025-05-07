@@ -3,8 +3,8 @@ package prot.csv;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import org.apache.commons.cli.*;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 public class JsonTreePlantUml {
@@ -29,15 +29,43 @@ public class JsonTreePlantUml {
         }
         Map<String, Object> tree = new JsonTree(csvFile, parentId, childId, nodeAttrs, cli.getOptionValue("s")).build();
         JsonMapper mapper = new JsonMapper();
+        OutputStream os = null;
+        Writer writer = null;
         try {
+            String json = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(tree);
             if (outputFile != null) {
-                mapper.writerWithDefaultPrettyPrinter().writeValue(new File(outputFile), tree);
+                os = new FileOutputStream(outputFile);
+                writer = new BufferedWriter(new OutputStreamWriter(os, StandardCharsets.UTF_8));
+                writer.write("@startjson");
+                writer.write(System.lineSeparator());
+                writer.write(json);
+                writer.write(System.lineSeparator());
+                writer.write("@endjson");
+                writer.write(System.lineSeparator());
+                writer.flush();
                 System.out.println("Tree written to file: " + outputFile);
             } else {
-                System.out.println(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(tree));
+                System.out.println("@startjson");
+                System.out.println(json);
+                System.out.println("@endjson");
             }
         } catch (IOException e) {
             System.err.println("Error writing JSON output: " + e.getMessage());
+        } finally {
+            if (writer != null) {
+                try {
+                    writer.close();
+                } catch (IOException e) {
+                    System.err.println("Error closing writer: " + e.getMessage());
+                }
+            }
+            if (os != null) {
+                try {
+                    os.close();
+                } catch (IOException e) {
+                    System.err.println("Error closing output stream: " + e.getMessage());
+                }
+            }
         }
     }
 

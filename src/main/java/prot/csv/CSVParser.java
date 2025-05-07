@@ -16,7 +16,7 @@ public class CSVParser {
                 org.apache.commons.csv.CSVParser parser = CSVFormat.DEFAULT.builder()
                         .setHeader().setSkipHeaderRecord(true).get().parse(in)) {
             Map<String, Integer> headerMap = parser.getHeaderMap();
-            System.out.println(headerMap);
+//            System.out.println(headerMap);
             List<String> headerNames = new ArrayList<>(headerMap.keySet());
             for (org.apache.commons.csv.CSVRecord record : parser) {
                 Map<String, String> map = new java.util.HashMap<>();
