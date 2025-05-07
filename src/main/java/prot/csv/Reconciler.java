@@ -68,7 +68,8 @@ public class Reconciler {
         String keyExpr = transform.substring(3);
         int eqPos = keyExpr.indexOf('=');
         String key = keyExpr.substring(0, eqPos).trim();
-        CompiledTemplate compiled = TemplateCompiler.compileTemplate(keyExpr.substring(eqPos + 1).trim());
+        String expr = "@{" + keyExpr.substring(eqPos + 1).trim() + "}";
+        CompiledTemplate compiled = TemplateCompiler.compileTemplate(expr);
         colTransformers.put(key, compiled);
     }
 

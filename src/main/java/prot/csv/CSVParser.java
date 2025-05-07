@@ -21,7 +21,8 @@ public class CSVParser {
             for (org.apache.commons.csv.CSVRecord record : parser) {
                 Map<String, String> map = new java.util.HashMap<>();
                 for (String headerName : headerNames) {
-                    map.put(headerName, record.get(headerName));
+                    String value = record.get(headerName);
+                    map.put(headerName, value == null ? null : value.trim());
                 }
                 result.add(map);
             }

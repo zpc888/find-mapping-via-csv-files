@@ -1,0 +1,19 @@
+@startjson
+'https://plantuml.com/json-diagram
+
+{
+  "__MULTI-ROOTS_" : [ {
+    "John Doe" : [ {
+      "Jane Smith" : [ {
+        "Alice Brown" : [ ]
+      } ]
+    }, {
+      "Bob Johnson" : [ ]
+    } ]
+  }, {
+    "George Zhou" : [ ]
+  } ]
+}
+
+
+@endjson

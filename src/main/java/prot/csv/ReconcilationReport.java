@@ -79,9 +79,9 @@ public class ReconcilationReport {
         overallOut.println("Matrix:");
         List<String> rowHeaders = getOrderedNonEmptyRowHeaders();
         List<String> colHeaders = getOrderedNonEmptyColHeaders();
-        matrixOut.print("columns");
+        matrixOut.print("Matrix");
         if (overallOut != matrixOut) {
-            overallOut.print("columns");
+            overallOut.print("Matrix");
         }
         for (String colHeader : colHeaders) {
             matrixOut.printf(",\"%s\"", colHeader);

@@ -14,6 +14,7 @@ dependencies {
     implementation("org.mvel:mvel2:2.5.2.Final")
     implementation("org.apache.commons:commons-csv:1.14.0")
     implementation("commons-cli:commons-cli:1.9.0")
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.15.2")
     testImplementation(platform("org.junit:junit-bom:5.10.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")
 }
