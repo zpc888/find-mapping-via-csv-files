@@ -5,6 +5,7 @@ import org.apache.commons.cli.*;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Map;
 
 public class JsonTreePlantUml {
@@ -23,48 +24,74 @@ public class JsonTreePlantUml {
         String childId = cli.getOptionValue("c");
         String[] nodeAttrs = cli.getOptionValues("n");
         String outputFile = cli.getOptionValue("o");
+        String singleAttr = cli.getOptionValue("s");
         if (csvFile == null || parentId == null || childId == null) {
             System.out.println("Error: Missing required options");
             showUsage(options, 2);
         }
-        Map<String, Object> tree = new JsonTree(csvFile, parentId, childId, nodeAttrs, cli.getOptionValue("s")).build();
-        JsonMapper mapper = new JsonMapper();
-        OutputStream os = null;
-        Writer writer = null;
+        JsonTree jsonTree = new JsonTree(csvFile, parentId, childId, nodeAttrs, singleAttr);
+        Map<String, Object> tree = jsonTree.build();
+        boolean hasMindMap = singleAttr != null && !singleAttr.isEmpty();
         try {
+            JsonMapper mapper = new JsonMapper();
             String json = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(tree);
+            json = "@startjson" + System.lineSeparator()
+                    + json + System.lineSeparator()
+                    + "@endjson" + System.lineSeparator();
+            System.out.println(json);
             if (outputFile != null) {
-                os = new FileOutputStream(outputFile);
-                writer = new BufferedWriter(new OutputStreamWriter(os, StandardCharsets.UTF_8));
-                writer.write("@startjson");
-                writer.write(System.lineSeparator());
-                writer.write(json);
-                writer.write(System.lineSeparator());
-                writer.write("@endjson");
-                writer.write(System.lineSeparator());
-                writer.flush();
-                System.out.println("Tree written to file: " + outputFile);
-            } else {
-                System.out.println("@startjson");
-                System.out.println(json);
-                System.out.println("@endjson");
+                writeToFile(outputFile, json);
+            }
+            if (hasMindMap) {
+                StringBuilder sb = new StringBuilder(2048);
+                toMindMap(sb, tree, 1);
+                String mindMap = "@startmindmap" + System.lineSeparator()
+                        +  sb.toString() + System.lineSeparator()
+                        + "@endmindmap" + System.lineSeparator();
+                System.out.println(mindMap);
+                if (outputFile != null) {
+                    writeToFile(outputFile + "-mindmap.puml", mindMap);
+                }
             }
         } catch (IOException e) {
             System.err.println("Error writing JSON output: " + e.getMessage());
-        } finally {
-            if (writer != null) {
-                try {
-                    writer.close();
-                } catch (IOException e) {
-                    System.err.println("Error closing writer: " + e.getMessage());
-                }
+        }
+    }
+
+    private static void writeToFile(String fileName, String content) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName, StandardCharsets.UTF_8))) {
+            writer.write(content);
+            writer.flush();
+        } catch (IOException e) {
+            System.err.println("Error writing to file: " + fileName + "; error info: " + e.getMessage());
+        }
+    }
+
+    private static void safeClose(Closeable closeable) {
+        if (closeable != null) {
+            try {
+                closeable.close();
+            } catch (IOException e) {
+                System.err.println("Error closing resource: " + e.getMessage());
             }
-            if (os != null) {
-                try {
-                    os.close();
-                } catch (IOException e) {
-                    System.err.println("Error closing output stream: " + e.getMessage());
-                }
+        }
+    }
+
+    static void toMindMap(StringBuilder sb, Map<String, Object> node, int level) {
+        String key = null;
+        List<Map<String, Object>> kids = null;
+        for (String k: node.keySet()) {
+            key = k;
+            kids = (List<Map<String, Object>>) node.get(k);
+        }
+        if (level == 1) {
+            sb.append("* ").append(key).append(System.lineSeparator());
+        } else {
+            sb.append("*".repeat(level)).append("_ ").append(key).append(System.lineSeparator());
+        }
+        if (kids != null) {
+            for (Map<String, Object> kid : kids) {
+                toMindMap(sb, kid, level + 1);
             }
         }
     }
